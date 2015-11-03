@@ -1,0 +1,17 @@
+[package]
+name = "dml"
+version = "0.1.0"
+authors = ["Samuel Dolt <samuel@dolt.ch>"]
+
+[dependencies]
+regex = "*"
+docopt = "0.6"
+rustc-serialize = "0.3"
+
+[lib]
+name = "dml"
+path = "src/lib.rs"
+
+[[bin]]
+name = "dml"
+path = "src/main.rs"
