@@ -8,13 +8,15 @@ use std::io::Write;
 use std::fs::File;
 
 use dml::process;
+use dml::Format;
+use dml::Config;
 
 const USAGE: &'static str = "
 DML - Dolt Markup Language
 
 Usage:
-  dml <input>
-  dml <input> --output=<output>
+  dml <input> [--format=<format>] [-r|--ready]
+  dml <input> --output=<output> [--format=<format>] [-r|--ready]
   dml --version
   dml --help
 
@@ -22,13 +24,17 @@ Options:
   -h --help                 Show this screen.
   -v --version              Show version
   -o --output=<output>      Specify output file [default: -]
+  -f --format=<format>      Specify output format [default: html]
+  -r --ready                With header and footer
 ";
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
     arg_input: String,
     flag_output: String,
+    flag_format: String,
     flag_version: bool,
+    flag_ready: bool,
 }
 
 fn main() {
@@ -50,7 +56,19 @@ fn main() {
         }
     };
 
-    match process(file, output) {
+
+    let format = match args.flag_format.as_ref() {
+        "latex" => Format::Latex,
+        "html"  => Format::Html,
+        _       => panic!("Unknow ouput format: {}", args.flag_format)
+    };
+
+    let config = Config{
+        format: format,
+        with_header_and_footer: args.flag_ready,
+    };
+
+    match process(file, output, config) {
         Ok(_)   => {},
         Err(e)  => panic!("{}", e),
     }

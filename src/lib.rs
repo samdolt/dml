@@ -10,10 +10,24 @@ pub use plugin::DmlPlugin;
 mod title;
 use title::TitlePlugin;
 
-pub fn process<R: Read, W: Write>(input: R, output: W) -> Result<(), io::Error> {
+mod templates;
+
+mod config;
+pub use config::Config;
+pub use config::Format;
+
+
+pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result<(), io::Error> {
 
     let in_buff = BufReader::new(input);
     let mut out_buff = BufWriter::new(output);
+
+    if config.with_header_and_footer {
+        match config.format {
+            Format::Html    => try!(write!(out_buff, "{}", templates::HTML_HEADER)),
+            Format::Latex   => unimplemented!(),
+        }
+    }
 
     let mut txt_block = String::new();
 
@@ -22,7 +36,7 @@ pub fn process<R: Read, W: Write>(input: R, output: W) -> Result<(), io::Error> 
         let line = try!(line);
 
         if line.trim() == "" {
-            try!(process_block(&txt_block, &mut out_buff));
+            try!(process_block(&txt_block, &mut out_buff, config));
             txt_block.clear();
         } else {
             txt_block.push_str(&line);
@@ -30,11 +44,20 @@ pub fn process<R: Read, W: Write>(input: R, output: W) -> Result<(), io::Error> 
         }
     }
 
-    try!(process_block(&txt_block, &mut out_buff));
+    try!(process_block(&txt_block, &mut out_buff, config));
+
+
+    if config.with_header_and_footer {
+        match config.format {
+            Format::Html    => try!(write!(out_buff, "{}", templates::HTML_FOOTER)),
+            Format::Latex   => unimplemented!(),
+        }
+    }
+
     Ok(())
 }
 
-fn process_block<W: Write>(txt_block: &str, output: &mut W) -> Result<(),io::Error> {
+fn process_block<W: Write>(txt_block: &str, output: &mut W, config: Config) -> Result<(),io::Error> {
 
     let mut txt_block = txt_block.to_string();
     if txt_block.trim() == "" {
@@ -50,13 +73,16 @@ fn process_block<W: Write>(txt_block: &str, output: &mut W) -> Result<(),io::Err
                 for _ in 0..plug.get_pattern().len() {
                     txt_block.remove(0);
                 }
-                try!(write!(output, "{}\n", plug.process(txt_block.trim())));
+                try!(write!(output, "{}\n\n", plug.process(txt_block.trim(), config.format)));
                 return Ok(());
             }
         }
     }
 
-    try!(write!(output,"<p>\n{}\n</p>\n", txt_block.trim()));
+    match config.format {
+        Format::Html  => try!(write!(output,"<p>\n{}\n</p>\n\n", txt_block.trim())),
+        Format::Latex => try!(write!(output, "{}\n\n", txt_block.trim())),
+    }
 
     Ok(())
 }

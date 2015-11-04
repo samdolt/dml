@@ -1,3 +1,5 @@
+use ::Format;
+
 pub trait DmlPlugin {
     fn get_oneline_processors() -> Vec<Box<OnelineProcessor>> {
         Vec::new()
@@ -12,9 +14,10 @@ pub trait DmlPlugin {
     }
 }
 
+
 pub trait OnelineProcessor {
     fn get_pattern(&self) -> String;
-    fn process(&self, line: &str) -> String;
+    fn process(&self, line: &str, to: Format) -> String;
 }
 
 pub trait BlockProcessor {
