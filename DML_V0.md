@@ -16,7 +16,7 @@ Le language est conçus afin de répondre aux exigences suivantes:
 
 ## Source d'inspiration
 
-Le language s'inspière du langage reStructuredText et du langage Makdown
+Le language s'inspire du langage reStructuredText et du langage Makdown
 
 ## Principes
 
@@ -82,8 +82,27 @@ Un paragraphe
 
 ###### Bloc titre niveau 6
 
-éy! Si le bloc ne correspond à aucun des patterns ci-dessus, comme notre bloc, le
-type est paragraphe.
+éy! Si le bloc ne correspond à aucun des patterns ci-dessus, comme notre bloc, 
+le type est paragraphe.
 ```
+
+--- code js
+
+---
+
+### Autres règles générales de structuration
+
+- Le longeur maximale d'une ligne de texte est fixée à 80 caractères, sans
+  compté les caractères de retours à la ligne.
+
+## Blocs annonymes
+
+### Titres
+
+Un bloc de titre commence par un ou plusieurs dièses suivis d'un espace. Le niveau du titre est indiqué par le nombre de dièses.
+
+
+
+
 
 

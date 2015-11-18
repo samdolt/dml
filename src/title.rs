@@ -1,11 +1,11 @@
-use ::OnelineProcessor;
+use ::AnonymousBlockProcessor;
 use ::DmlPlugin;
 use ::Format;
 
 pub struct TitlePlugin;
 
 impl DmlPlugin for TitlePlugin {
-    fn get_oneline_processors() -> Vec<Box<OnelineProcessor>> {
+    fn get_anonymous_block_processors() -> Vec<Box<AnonymousBlockProcessor>> {
         vec!(
             Box::new(TitleProcessing::new(1)),
             Box::new(TitleProcessing::new(2)),
@@ -32,7 +32,7 @@ impl TitleProcessing {
 
 }
 
-impl OnelineProcessor for TitleProcessing {
+impl AnonymousBlockProcessor for TitleProcessing {
 
     fn get_pattern(&self) -> String {
         let mut pattern = String::with_capacity(self.level + 1);
@@ -90,7 +90,7 @@ fn test_title_latex() {
     assert_eq!("### ", h3.get_pattern());
 
     assert_eq!("\\section{Hello}", h1.process("Hello",  Format::Latex));
-    assert_eq!("\\subsection{Hello World!}", h2.process("Hi World!", Format::Latex));
+    assert_eq!("\\subsection{Hi World!}", h2.process("Hi World!", Format::Latex));
     assert_eq!("\\subsubsection{Hallo}", h3.process("Hallo", Format::Latex));
     assert_eq!("\\paragraph{h4}", h4.process("h4", Format::Latex));
     assert_eq!("\\subparagraph{h5}", h5.process("h5", Format::Latex));

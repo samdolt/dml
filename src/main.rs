@@ -2,6 +2,10 @@ extern crate dml;
 extern crate rustc_serialize;
 extern crate docopt;
 
+#[macro_use]
+extern crate log;
+extern crate env_logger;
+
 use docopt::Docopt;
 use std::io::stdout;
 use std::io::Write;
@@ -42,6 +46,8 @@ fn main() {
     let args: Args = Docopt::new(USAGE)
                             .and_then(|d| d.decode())
                             .unwrap_or_else(|e| e.exit());
+
+    env_logger::init().unwrap();
     let file = match File::open(&args.arg_input) {
         Ok(file) => file,
         Err(..)  => panic!("{} doesn't exist", args.arg_input)
