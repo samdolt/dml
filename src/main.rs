@@ -19,6 +19,7 @@ const USAGE: &'static str = "
 DML - Dolt Markup Language
 
 Usage:
+  dml [--format=<format>]
   dml <input> [--format=<format>] [-r|--ready]
   dml <input> --output=<output> [--format=<format>] [-r|--ready]
   dml --version
@@ -48,6 +49,21 @@ fn main() {
                             .unwrap_or_else(|e| e.exit());
 
     env_logger::init().unwrap();
+
+    if args.arg_input == "" {
+        // We are in project mode
+        project_mode(&args);
+    } else {
+        // We are in single file mode
+        single_file_mode(&args);
+    }
+}
+
+fn project_mode(args: &Args) {
+    unimplemented!()
+}
+
+fn single_file_mode(args: &Args) {
     let file = match File::open(&args.arg_input) {
         Ok(file) => file,
         Err(..)  => panic!("{} doesn't exist", args.arg_input)

@@ -19,17 +19,16 @@ pub use plugin::AnonymousBlockProcessor;
 pub use plugin::InlineProcessor;
 pub use plugin::DmlPlugin;
 
-mod title;
-use title::TitlePlugin;
-
-mod emphasis;
-use emphasis::EmphasisPlugin;
+use plugin::TitlePlugin;
+use plugin::EmphasisPlugin;
 
 mod templates;
 
 mod config;
 pub use config::Config;
 pub use config::Format;
+
+mod project;
 
 
 /// Process multiple block of text

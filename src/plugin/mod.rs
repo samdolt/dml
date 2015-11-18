@@ -1,6 +1,13 @@
 use ::Format;
 use regex::Regex;
 
+mod title;
+pub use self::title::TitlePlugin;
+
+mod emphasis;
+pub use self::emphasis::EmphasisPlugin;
+
+
 pub trait DmlPlugin {
 
     fn get_named_block_processors() -> Vec<Box<NamedBlockProcessor>> {
