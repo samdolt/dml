@@ -6,9 +6,9 @@ addons:
     - libelf-dev
     - libdw-dev
 rust:
-- nightly
-- beta
-- stable
+    - stable
+    - beta
+
 before_script:
 - |
   pip install 'travis-cargo<0.2' --user &&
@@ -24,5 +24,4 @@ after_success:
 - travis-cargo coveralls --no-sudo
 env:
   global:
-  - TRAVIS_CARGO_NIGHTLY_FEATURE=nightly
   - secure: UFCdJ96wdg9xxMJnvBsLnC60QN1yfeqveJzA/WFRbFKv/g9RxAnGhjjDAuOAymqrRZ+ocENFiqx2aixyCgT6TcH+RFC2PWW7ruzXEDoL/5/90wnezphvg5TZkrMScudGG8K110psBOSIzxBPhfmJXUgPfNe3FXt5XpNclCOg8iIUjHRZXVQd1nCd3RBazFpqtLsfe+p3X0aQedKXXm4N8w1liCB0UTExsjXPgbBlfVu8A03divWiV/vkYzoiToZs9FlfyvhwkrwFt064dEh52Wz06JpaHA9ONXgyhnkocd8cOoVsKQOPf8vUd811TgjcXjZJRjz3DxI11S40iwEU0sCKxuKB/p9a9ZtPLPLsrjp4cOSg2L44YBzAKv32iadEvFYWckAeia90eSa8rnljbyntP3mz8Z5S8fKiHd3e/hrRC00HsRHPsruWTgEz3KVxwQ0h4AMflGJ0R/tdo7C+axJLT70meve7MA78EJwlHxhxOQk2INkoc8e5x8jmfNbGAwvIldnPhUDcsU5Hm2q4iM7YeUxYyoTf/66Fzw8ZwELZypE2BaEWqTZJgSDDA5SnBAPrLO471hjTm6xBKKc42sjNiZGdOemTTfG26Gfb0QpHPHJgjXYp6OasMF0IdXUeuaQi+OAcE9WRjK7p3gKvd6qQUuDRkxKGiy+Q5+61id0=
