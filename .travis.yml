@@ -1,41 +1,28 @@
 language: rust
-# necessary for `travis-cargo coveralls --no-sudo`
 addons:
   apt:
     packages:
-      - libcurl4-openssl-dev
-      - libelf-dev
-      - libdw-dev
-
-# run builds for all the trains (and more)
+    - libcurl4-openssl-dev
+    - libelf-dev
+    - libdw-dev
 rust:
-  - nightly
-  - beta
-  - stable
-
-# load travis-cargo
+- nightly
+- beta
+- stable
 before_script:
-  - |
-      pip install 'travis-cargo<0.2' --user &&
-      export PATH=$HOME/.local/bin:$PATH
-
-# the main build
+- |
+  pip install 'travis-cargo<0.2' --user &&
+  export PATH=$HOME/.local/bin:$PATH
 script:
-  - |
-      travis-cargo build &&
-      travis-cargo test &&
-      travis-cargo bench &&
-      travis-cargo --only stable doc
+- |
+  travis-cargo build &&
+  travis-cargo test &&
+  travis-cargo bench &&
+  travis-cargo --only stable doc
 after_success:
-  # upload the documentation from the build with stable (automatically only actually
-  # runs on the master branch, not individual PRs)
-  - travis-cargo --only stable doc-upload
-  # measure code coverage and upload to coveralls.io
-  - travis-cargo coveralls --no-sudo
-
+- travis-cargo --only stable doc-upload
+- travis-cargo coveralls --no-sudo
 env:
   global:
-    # override the default `--features unstable` used for the nightly branch (optional)
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=nightly
-    # encrypted github token for doc upload (see `GH_TOKEN` link above)
-    - secure: "..."
+  - TRAVIS_CARGO_NIGHTLY_FEATURE=nightly
+  - secure: UFCdJ96wdg9xxMJnvBsLnC60QN1yfeqveJzA/WFRbFKv/g9RxAnGhjjDAuOAymqrRZ+ocENFiqx2aixyCgT6TcH+RFC2PWW7ruzXEDoL/5/90wnezphvg5TZkrMScudGG8K110psBOSIzxBPhfmJXUgPfNe3FXt5XpNclCOg8iIUjHRZXVQd1nCd3RBazFpqtLsfe+p3X0aQedKXXm4N8w1liCB0UTExsjXPgbBlfVu8A03divWiV/vkYzoiToZs9FlfyvhwkrwFt064dEh52Wz06JpaHA9ONXgyhnkocd8cOoVsKQOPf8vUd811TgjcXjZJRjz3DxI11S40iwEU0sCKxuKB/p9a9ZtPLPLsrjp4cOSg2L44YBzAKv32iadEvFYWckAeia90eSa8rnljbyntP3mz8Z5S8fKiHd3e/hrRC00HsRHPsruWTgEz3KVxwQ0h4AMflGJ0R/tdo7C+axJLT70meve7MA78EJwlHxhxOQk2INkoc8e5x8jmfNbGAwvIldnPhUDcsU5Hm2q4iM7YeUxYyoTf/66Fzw8ZwELZypE2BaEWqTZJgSDDA5SnBAPrLO471hjTm6xBKKc42sjNiZGdOemTTfG26Gfb0QpHPHJgjXYp6OasMF0IdXUeuaQi+OAcE9WRjK7p3gKvd6qQUuDRkxKGiy+Q5+61id0=
