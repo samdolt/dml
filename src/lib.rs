@@ -5,8 +5,10 @@
 
 #[macro_use]
 extern crate log;
-
+extern crate rustc_serialize;
 extern crate regex;
+
+extern crate docopt;
 
 
 use std::io::BufReader;
@@ -30,6 +32,8 @@ pub use config::Format;
 
 mod project;
 
+pub mod command;
+pub use command::Command;
 
 /// Process multiple block of text
 pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result<(), io::Error> {

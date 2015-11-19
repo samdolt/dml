@@ -1,6 +1,6 @@
 [package]
 name = "dml"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Samuel Dolt <samuel@dolt.ch>"]
 
 [dependencies]

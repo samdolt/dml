@@ -1,5 +1,5 @@
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, RustcDecodable)]
 pub enum Format {
     Html,
     Latex,

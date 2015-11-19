@@ -10,88 +10,96 @@ use docopt::Docopt;
 use std::io::stdout;
 use std::io::Write;
 use std::fs::File;
+use std::env;
 
 use dml::process;
 use dml::Format;
 use dml::Config;
+use dml::Command;
+use dml::command::run;
 
 const USAGE: &'static str = "
 DML - Dolt Markup Language
 
 Usage:
-  dml [--format=<format>]
-  dml <input> [--format=<format>] [-r|--ready]
-  dml <input> --output=<output> [--format=<format>] [-r|--ready]
-  dml --version
-  dml --help
+  dml <command> [<args>...]
+  dml [options]
 
 Options:
   -h --help                 Show this screen.
   -v --version              Show version
-  -o --output=<output>      Specify output file [default: -]
-  -f --format=<format>      Specify output format [default: html]
-  -r --ready                With header and footer
+
+Some common DML commands are:
+  build     Compile the current project
+  clean     Remove the target directory
+  new       Create a new dml project
+  process   Process a single file
+
+See 'cargo help <command>' for more information on a specific command.
 ";
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
-    arg_input: String,
-    flag_output: String,
-    flag_format: String,
+    arg_command: Option<Command>,
+    arg_args: Vec<String>,
     flag_version: bool,
-    flag_ready: bool,
 }
+
 
 fn main() {
 
+    // In Docopt, option_first meen all option (--opt -o) after the
+    // first positional argument are interpreted as positional
+    //
+    // -> dml --verbose build -o html
+    // --verbose is a option and -o html are arg, stored in arg_args vector
     let args: Args = Docopt::new(USAGE)
-                            .and_then(|d| d.decode())
+                            .and_then(|d| {
+                                d.options_first(true).decode()
+                            })
                             .unwrap_or_else(|e| e.exit());
 
     env_logger::init().unwrap();
 
-    if args.arg_input == "" {
-        // We are in project mode
-        project_mode(&args);
-    } else {
-        // We are in single file mode
-        single_file_mode(&args);
+    match args.arg_command {
+        Some(cmd)   => run(cmd, &env::args().collect()),
+        None        => {
+            if args.flag_version {
+                print_info();
+            } else {
+                unreachable!("Somethings bad here");
+            }
+        }
     }
+
+
 }
+
+fn print_info() {
+    println!("Dml version {}", env!("CARGO_PKG_VERSION"));
+}
+
 
 fn project_mode(args: &Args) {
     unimplemented!()
 }
 
 fn single_file_mode(args: &Args) {
-    let file = match File::open(&args.arg_input) {
-        Ok(file) => file,
-        Err(..)  => panic!("{} doesn't exist", args.arg_input)
-    };
-
-    let output: Box<Write> = if &args.flag_output == "-" {
-            Box::new(stdout())
-        } else {
-            match File::create(&args.flag_output) {
-                Ok(file)    => Box::new(file),
-                Err(..)     => panic!("Couldn't create file {}", args.flag_output),
-        }
-    };
 
 
-    let format = match args.flag_format.as_ref() {
-        "latex" => Format::Latex,
-        "html"  => Format::Html,
-        _       => panic!("Unknow ouput format: {}", args.flag_format)
-    };
+    //let format = match args.flag_format.as_ref() {
+    //    "latex" => Format::Latex,
+    //    "html"  => Format::Html,
+    //    _       => panic!("Unknow ouput format: {}", args.flag_format)
+    //};
 
-    let config = Config{
-        format: format,
-        with_header_and_footer: args.flag_ready,
-    };
+    //let config = Config{
+    //    format: format,
+    //    with_header_and_footer: args.flag_ready,
+    //};
 
-    match process(file, output, config) {
-        Ok(_)   => {},
-        Err(e)  => panic!("{}", e),
-    }
+    //match process(file, output, config) {
+    //    Ok(_)   => {},
+    //    Err(e)  => panic!("{}", e),
+    //}
 }
