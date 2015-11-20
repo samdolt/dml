@@ -26,8 +26,15 @@ pub struct BuildDir {
 }
 
 impl BuildDir {
+
+    /// Create a new BuildDir in ./build
     pub fn new() -> io::Result<BuildDir> {
-        let path = Path::new("build/").to_path_buf();
+        BuildDir::with_path("build/")
+    }
+
+    /// Create a new BuildDir at the given path
+    pub fn with_path<P: AsRef<Path>>(path: P) -> io::Result<BuildDir> {
+        let path = path.as_ref().to_path_buf();
         let build_dir = BuildDir {path:path.clone()};
         match fs::create_dir(&path) {
             Ok(_)   => Ok(build_dir),
@@ -38,6 +45,25 @@ impl BuildDir {
                 }
             }
         }
+    }
+
+    /// Create a new BuildDir in a subfolder of current Buildir
+    ///
+    /// # Example
+    /// ```
+    /// use dml::helpers::BuildDir;
+    ///
+    /// // New build dir at ./build/
+    /// let build = BuildDir::new().unwrap();
+    ///
+    /// // New build dir at ./build/html/
+    /// let html = build.dir("html").unwrap();
+    /// ```
+    pub fn dir<P: AsRef<Path>>(&self, path: P) -> io::Result<BuildDir> {
+        let mut builder = self.path.clone();
+        builder.push(path);
+
+        BuildDir::with_path(&builder.as_path())
     }
 
     pub fn delete(self) -> io::Result<()> {
