@@ -40,6 +40,10 @@ struct Args {
 }
 
 impl DmlCommand for ProcessCommand {
+    fn help() -> String {
+        USAGE.to_string()
+    }
+
     fn run(argv: &Vec<String>){
 
         let args: Args = Docopt::new(USAGE)

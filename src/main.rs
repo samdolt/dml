@@ -16,7 +16,7 @@ dml - Dolt Markup Language
 
 Usage:
   dml <command> [<args>...]
-  dml [options]
+  dml -h | -v
 
 Options:
   -h --help                 Show this screen.

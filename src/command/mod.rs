@@ -11,10 +11,13 @@
 mod process;
 use self::process::ProcessCommand;
 
+mod help;
+use self::help::HelpCommand;
+
 /// Available command on the command line
 #[derive(Debug, RustcDecodable)]
 pub enum Command {
-    Build, New, Clean, Process,
+    Build, New, Clean, Process, Help,
 }
 
 impl Command {
@@ -26,10 +29,20 @@ impl Command {
             Command::New        =>  println!("New"),
             Command::Clean      =>  println!("Clean"),
             Command::Process    =>  ProcessCommand::run(&args),
+            Command::Help       =>  HelpCommand::run(&args),
+        }
+    }
+
+    pub fn help(self) -> String {
+        match self {
+            Command::Process    => ProcessCommand::help(),
+            Command::Help       => HelpCommand::help(),
+            _                   => "--".to_string(),
         }
     }
 }
 
 trait DmlCommand {
     fn run(argv: &Vec<String>);
+    fn help() -> String;
 }
