@@ -1,0 +1,20 @@
+[meta]
+    title = "My first dml book"
+    authors = ["Me"]
+
+[front]
+    summary = true
+
+[main]
+    content = [
+        "intro.dml",
+    ]
+
+[appendix]
+    content = [
+        "appendix1.dml",
+    ]
+
+[back]
+    bibliography = true
+    index = true
