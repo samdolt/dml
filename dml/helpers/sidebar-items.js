@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BuildDir","Helper for creating and deleting project build directory"]]});

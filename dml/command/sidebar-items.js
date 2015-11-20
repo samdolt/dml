@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Command","Available command on the command line"]]});
