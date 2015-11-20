@@ -35,6 +35,8 @@ mod project;
 pub mod command;
 pub use command::Command;
 
+pub mod helpers;
+
 /// Process multiple block of text
 pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result<(), io::Error> {
 

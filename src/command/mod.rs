@@ -14,6 +14,9 @@ use self::process::ProcessCommand;
 mod help;
 use self::help::HelpCommand;
 
+mod clean;
+use self::clean::CleanCommand;
+
 /// Available command on the command line
 #[derive(Debug, RustcDecodable)]
 pub enum Command {
@@ -27,7 +30,7 @@ impl Command {
         match self {
             Command::Build      =>  println!("Build"),
             Command::New        =>  println!("New"),
-            Command::Clean      =>  println!("Clean"),
+            Command::Clean      =>  CleanCommand::run(&args),
             Command::Process    =>  ProcessCommand::run(&args),
             Command::Help       =>  HelpCommand::run(&args),
         }
@@ -37,6 +40,7 @@ impl Command {
         match self {
             Command::Process    => ProcessCommand::help(),
             Command::Help       => HelpCommand::help(),
+            Command::Clean      => CleanCommand::help(),
             _                   => "--".to_string(),
         }
     }
