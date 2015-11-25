@@ -3,41 +3,123 @@
 //! This library is used to parse Dml text file or to write new plugin for the
 //! DML text processor.
 
-#[macro_use]
-extern crate log;
-extern crate rustc_serialize;
-extern crate regex;
-
-extern crate docopt;
-
 
 use std::io::BufReader;
 use std::io::BufWriter;
+use std::io::Lines;
 use std::io;
 use std::io::prelude::*;
+use std::iter;
 
-mod plugin;
-pub use plugin::AnonymousBlockProcessor;
-pub use plugin::InlineProcessor;
-pub use plugin::DmlPlugin;
+use plugin::AnonymousBlockProcessor;
+use plugin::InlineProcessor;
+use plugin::DmlPlugin;
 
 use plugin::TitlePlugin;
 use plugin::EmphasisPlugin;
+use templates;
 
-mod templates;
+use Config;
+use Format;
 
-mod config;
-pub use config::Config;
-pub use config::Format;
+struct Parser {
+    out_format: Format,
+}
 
-mod project;
+struct BlockIterator<R> where R: Read {
+    lines: Lines<BufReader<R>>,
+}
 
-pub mod command;
-pub use command::Command;
+#[derive(Debug)]
+enum BlockType { Anonymous, Named, Empty};
 
-pub mod helpers;
-pub mod parser;
+struct Block {
+    type: BlockType,
+    ref: String,
+    content: String,
+    args: Vec<String>,
+}
 
+struct BlockBuilder {
+    type: Option<BlockType>,
+    ref:  Option<String>,
+    content: String,
+    args: Vec<String>,
+}
+
+impl<R> BlockIterator<R> where R: Read {
+    pub fn new(input: R) -> BlockIterator<R> {
+        let buf = BufReader::new(input);
+        let lines = buf.lines();
+        BlockIterator {
+            lines: lines,
+        }
+    }
+}
+
+impl<R> Iterator for BlockIterator<R> where R: Read {
+    type Item = String;
+    fn next(&mut self)  -> Option<String> {
+
+        let mut block = BlockType::Empty;
+        let mut buf = String::with_capacity(1024);
+        let mut line = String::with_capacity(80);
+        loop {
+            let line = match self.lines.next() {
+                Ok(R)   => R.expect("IO ERROR"),
+                None    => break,
+            }
+
+            match block {
+                BlockType::Empty => {
+                    if line.trim() != "" {
+                        // New block detected
+                        if line.starts_with("--- ") {
+                            block = BlockType::Named;
+                        }
+                    } else {
+                        // Blank line, not in a block -> Do nothing
+                    }
+                },
+                BlockType::Anonymous    => {
+                    if line.trim() == "" {
+                        // End of block
+                        break;
+                    } else {
+                        buf.push(line);
+                    }
+                },
+                BlockType::Named    => {
+                    if line.starts_with("---") {
+                        // End of block
+                        break;
+                    } else {
+                        buf.push(line);
+                    }
+                },
+            }
+        }
+
+        if buf.trim() == "" {
+            None
+        } else {
+            Ok(buf)
+        }
+    }
+}
+
+
+impl Parser {
+    pub fn new(format: Format) -> Parser {
+        Parser {
+            out_format: format,
+        }
+    }
+
+    pub fn parse<R: Read, W: Write>(&self, input: R, output: W)  -> io::Result<()> {
+        Ok(())
+    }
+}
 /// Process multiple block of text
 pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result<(), io::Error> {
 
