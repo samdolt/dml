@@ -9,7 +9,7 @@ use std::io::stdout;
 
 use Format;
 use Config;
-use process;
+use ::parser::process;
 
 const USAGE: &'static str = "
 Usage:

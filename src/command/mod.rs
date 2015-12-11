@@ -20,6 +20,9 @@ use self::clean::CleanCommand;
 mod new;
 use self::new::NewCommand;
 
+mod build;
+use self::build::BuildCommand;
+
 /// Available command on the command line
 #[derive(Debug, RustcDecodable)]
 pub enum Command {
@@ -31,7 +34,7 @@ impl Command {
     /// Run the specified command with given argv
     pub fn run(self, args: &Vec<String>) {
         match self {
-            Command::Build      =>  println!("Build"),
+            Command::Build      =>  BuildCommand::run(&args),
             Command::New        =>  NewCommand::run(&args),
             Command::Clean      =>  CleanCommand::run(&args),
             Command::Process    =>  ProcessCommand::run(&args),
@@ -41,11 +44,11 @@ impl Command {
 
     pub fn help(self) -> String {
         match self {
+            Command::Build      => BuildCommand::help(),
             Command::Process    => ProcessCommand::help(),
             Command::Help       => HelpCommand::help(),
             Command::Clean      => CleanCommand::help(),
             Command::New        => NewCommand::help(),
-            _                   => "--".to_string(),
         }
     }
 }

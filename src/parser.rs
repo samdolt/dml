@@ -31,20 +31,27 @@ struct BlockIterator<R> where R: Read {
 }
 
 #[derive(Debug)]
-enum BlockType { Anonymous, Named, Empty};
+enum BlockType { Anonymous, Named, Empty}
 
-struct Block {
-    type: BlockType,
-    ref: String,
+#[derive(Debug)]
+pub struct Block {
+    type_: BlockType,
+    name: String,
     content: String,
     args: Vec<String>,
 }
 
-struct BlockBuilder {
-    type: Option<BlockType>,
-    ref:  Option<String>,
-    content: String,
-    args: Vec<String>,
+impl Block {
+    fn new() -> Block {
+        let content = String::with_capacity(1024);
+
+        Block {
+            type_: BlockType::Empty,
+            name: String::with_capacity(25),
+            content: content,
+            args: Vec::new(),
+        }
+    }
 }
 
 impl<R> BlockIterator<R> where R: Read {
@@ -58,25 +65,40 @@ impl<R> BlockIterator<R> where R: Read {
 }
 
 impl<R> Iterator for BlockIterator<R> where R: Read {
-    type Item = String;
-    fn next(&mut self)  -> Option<String> {
+    type Item = Block;
+    fn next(&mut self)  -> Option<Block> {
+        trace!("BlockIterator.next called");
 
-        let mut block = BlockType::Empty;
-        let mut buf = String::with_capacity(1024);
+        let mut block = Block::new();
         let mut line = String::with_capacity(80);
         loop {
             let line = match self.lines.next() {
-                Ok(R)   => R.expect("IO ERROR"),
+                Some(R)   => R.expect("IO ERROR"),
                 None    => break,
-            }
+            };
 
-            match block {
+            trace!("Get new line {:?}", &line);
+
+            match block.type_ {
                 BlockType::Empty => {
-                    if line.trim() != "" {
-                        // New block detected
-                        if line.starts_with("--- ") {
-                            block = BlockType::Named;
-                        }
+                    if line.starts_with("--- "){
+                        // New Named block
+                        block.type_ = BlockType::Named;
+                        let args: Vec<&str> = line.split_whitespace().collect();
+
+                        // args[0] is "---"
+                        block.name = args[1].to_string();
+
+
+                    } else if line.trim() != "" {
+                        // New anonymous block
+                        block.type_ = BlockType::Anonymous;
+                        block.content.push_str(&line);
+
+                        block.name = line.split_whitespace()
+                                         .next()
+                                         .expect("Anoynomous name")
+                                         .to_string();
                     } else {
                         // Blank line, not in a block -> Do nothing
                     }
@@ -86,7 +108,7 @@ impl<R> Iterator for BlockIterator<R> where R: Read {
                         // End of block
                         break;
                     } else {
-                        buf.push(line);
+                        block.content.push_str(&line);
                     }
                 },
                 BlockType::Named    => {
@@ -94,16 +116,16 @@ impl<R> Iterator for BlockIterator<R> where R: Read {
                         // End of block
                         break;
                     } else {
-                        buf.push(line);
+                        block.content.push_str(&line);
                     }
                 },
             }
         }
 
-        if buf.trim() == "" {
+        if block.content.trim() == "" {
             None
         } else {
-            Ok(buf)
+            Some(block)
         }
     }
 }
@@ -122,8 +144,6 @@ impl Parser {
 }
 /// Process multiple block of text
 pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result<(), io::Error> {
-
-    let in_buff = BufReader::new(input);
     let mut out_buff = BufWriter::new(output);
 
     // Check if we have to write some html header or latex header
@@ -135,76 +155,11 @@ pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result
         }
     }
 
+    let block_parser = BlockIterator::new(input);
 
-    // Parse input file in a serie of block. Each bloc is passed directly
-    // to the function process_block, so when the last bloc has been parsed,
-    // the work is almost done
-    let mut txt_block = String::with_capacity(1024);
-    let mut in_named_block: bool = false;
-    let mut in_anonymous_block: bool = false;
-    let max_line_lenght = 80;
-
-    for line in in_buff.lines() {
-
-        let line: String = try!(line);
-        let trimed_line = line.trim();
-
-        trace!("PROCESS_LINE: {}", &line);
-
-        // Spec says that the number of char in a line is max 80.
-        if line.chars().count() > max_line_lenght {
-            warn!("More than 80 chars in a line detected");
-        }
-
-        // We can't be in a anonymous block and a named block in the same time
-        debug_assert!(!(in_named_block && in_anonymous_block));
-
-        // Named block begin with --- and end with ---
-        // This type of block must be checked first, because empty line is
-        // allowed on a named bloc. (Used as a block separator otherwise)
-        if in_named_block {
-            if trimed_line == "---" {
-                // We are on the end of a named block -> process_block
-                // and clear in_named_block state
-                in_named_block = false;
-                try!(process_block(&txt_block, &mut out_buff, config));
-                txt_block.clear();
-            } else {
-                // We are on the middle of a named block. Text are appended to
-                // txt_block.
-                txt_block.push_str(&line);
-                txt_block.push_str("\n");
-            }
-        } else if in_anonymous_block {
-            if trimed_line == "" {
-                // We reached the end of the anonymous block
-                in_anonymous_block = false;
-                try!(process_block(&txt_block, &mut out_buff, config));
-                txt_block.clear();
-            } else {
-                // We are in the middle of a anonymous block
-                txt_block.push_str(&line);
-                txt_block.push_str("\n");
-            }
-        } else {
-            // We are not in a block, we need to check for a new block
-
-            // txt_block should be empty here.
-            debug_assert!(txt_block == "");
-
-            if trimed_line.starts_with("--- ") {
-                in_named_block = true;
-            } else if trimed_line != "" {
-                in_anonymous_block = true;
-                txt_block.push_str(&line);
-                txt_block.push_str("\n");
-            }
-        }
-    }
-
-    // Reading text file has finished, check for the last block
-    if txt_block.trim() != "" {
-        try!(process_block(&txt_block, &mut out_buff, config));
+    for block in block_parser {
+        println!("======================");
+        println!("{:?}", block );
     }
 
     // Write footer if needed
