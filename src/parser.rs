@@ -26,12 +26,18 @@ struct Parser {
     out_format: Format,
 }
 
-struct BlockIterator<R> where R: Read {
+struct BlockIterator<R>
+    where R: Read
+{
     lines: Lines<BufReader<R>>,
 }
 
 #[derive(Debug)]
-enum BlockType { Anonymous, Named, Empty}
+enum BlockType {
+    Anonymous,
+    Named,
+    Empty,
+}
 
 #[derive(Debug)]
 pub struct Block {
@@ -54,34 +60,34 @@ impl Block {
     }
 }
 
-impl<R> BlockIterator<R> where R: Read {
+impl<R> BlockIterator<R> where R: Read
+{
     pub fn new(input: R) -> BlockIterator<R> {
         let buf = BufReader::new(input);
         let lines = buf.lines();
-        BlockIterator {
-            lines: lines,
-        }
+        BlockIterator { lines: lines }
     }
 }
 
-impl<R> Iterator for BlockIterator<R> where R: Read {
+impl<R> Iterator for BlockIterator<R> where R: Read
+{
     type Item = Block;
-    fn next(&mut self)  -> Option<Block> {
+    fn next(&mut self) -> Option<Block> {
         trace!("BlockIterator.next called");
 
         let mut block = Block::new();
         let mut line = String::with_capacity(80);
         loop {
             let line = match self.lines.next() {
-                Some(R)   => R.expect("IO ERROR"),
-                None    => break,
+                Some(R) => R.expect("IO ERROR"),
+                None => break,
             };
 
             trace!("Get new line {:?}", &line);
 
             match block.type_ {
                 BlockType::Empty => {
-                    if line.starts_with("--- "){
+                    if line.starts_with("--- ") {
                         // New Named block
                         block.type_ = BlockType::Named;
                         let args: Vec<&str> = line.split_whitespace().collect();
@@ -102,23 +108,23 @@ impl<R> Iterator for BlockIterator<R> where R: Read {
                     } else {
                         // Blank line, not in a block -> Do nothing
                     }
-                },
-                BlockType::Anonymous    => {
+                }
+                BlockType::Anonymous => {
                     if line.trim() == "" {
                         // End of block
                         break;
                     } else {
                         block.content.push_str(&line);
                     }
-                },
-                BlockType::Named    => {
+                }
+                BlockType::Named => {
                     if line.starts_with("---") {
                         // End of block
                         break;
                     } else {
                         block.content.push_str(&line);
                     }
-                },
+                }
             }
         }
 
@@ -133,12 +139,10 @@ impl<R> Iterator for BlockIterator<R> where R: Read {
 
 impl Parser {
     pub fn new(format: Format) -> Parser {
-        Parser {
-            out_format: format,
-        }
+        Parser { out_format: format }
     }
 
-    pub fn parse<R: Read, W: Write>(&self, input: R, output: W)  -> io::Result<()> {
+    pub fn parse<R: Read, W: Write>(&self, input: R, output: W) -> io::Result<()> {
         Ok(())
     }
 }
@@ -150,8 +154,8 @@ pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result
     // and write it
     if config.with_header_and_footer {
         match config.format {
-            Format::Html    => try!(write!(out_buff, "{}", templates::HTML_HEADER)),
-            Format::Latex   => unimplemented!(),
+            Format::Html => try!(write!(out_buff, "{}", templates::HTML_HEADER)),
+            Format::Latex => unimplemented!(),
         }
     }
 
@@ -159,14 +163,14 @@ pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result
 
     for block in block_parser {
         println!("======================");
-        println!("{:?}", block );
+        println!("{:?}", block);
     }
 
     // Write footer if needed
     if config.with_header_and_footer {
         match config.format {
-            Format::Html    => try!(write!(out_buff, "{}", templates::HTML_FOOTER)),
-            Format::Latex   => unimplemented!(),
+            Format::Html => try!(write!(out_buff, "{}", templates::HTML_FOOTER)),
+            Format::Latex => unimplemented!(),
         }
     }
 
@@ -195,7 +199,10 @@ pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result
 /// # Failure
 ///
 /// Return a failure if a IO read or write as failed
-pub fn process_block<W: Write>(txt_block: &str, output: &mut W, config: Config) -> Result<(),io::Error> {
+pub fn process_block<W: Write>(txt_block: &str,
+                               output: &mut W,
+                               config: Config)
+                               -> Result<(), io::Error> {
 
     let mut txt_block = txt_block.to_string();
 
@@ -209,11 +216,13 @@ pub fn process_block<W: Write>(txt_block: &str, output: &mut W, config: Config) 
 
         for plug in anonymous_processors.iter() {
 
-            if txt_block.starts_with(&plug.get_pattern()){
+            if txt_block.starts_with(&plug.get_pattern()) {
                 for _ in 0..plug.get_pattern().len() {
                     txt_block.remove(0);
                 }
-                try!(write!(output, "{}\n\n", plug.process(txt_block.trim(), config.format)));
+                try!(write!(output,
+                            "{}\n\n",
+                            plug.process(txt_block.trim(), config.format)));
                 return Ok(());
             }
         }
@@ -228,10 +237,9 @@ pub fn process_block<W: Write>(txt_block: &str, output: &mut W, config: Config) 
     }
 
     match config.format {
-        Format::Html  => try!(write!(output,"<p>\n{}\n</p>\n\n", processed_block.trim())),
+        Format::Html => try!(write!(output, "<p>\n{}\n</p>\n\n", processed_block.trim())),
         Format::Latex => try!(write!(output, "{}\n\n", processed_block.trim())),
     }
 
     Ok(())
 }
-

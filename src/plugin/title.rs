@@ -1,6 +1,6 @@
-use ::AnonymousBlockProcessor;
-use ::DmlPlugin;
-use ::Format;
+use AnonymousBlockProcessor;
+use DmlPlugin;
+use Format;
 
 pub struct TitlePlugin;
 
@@ -23,17 +23,12 @@ pub struct TitleProcessing {
 }
 
 impl TitleProcessing {
-
     pub fn new(level: usize) -> TitleProcessing {
-        TitleProcessing {
-            level: level,
-        }
+        TitleProcessing { level: level }
     }
-
 }
 
 impl AnonymousBlockProcessor for TitleProcessing {
-
     fn get_pattern(&self) -> String {
         let mut pattern = String::with_capacity(self.level + 1);
         for _ in 0..self.level {
@@ -47,14 +42,16 @@ impl AnonymousBlockProcessor for TitleProcessing {
     fn process(&self, line: &str, format: Format) -> String {
         match format {
             Format::Html => format!("<h{}>{}</h{}>", self.level, line, self.level),
-            Format::Latex => match self.level {
+            Format::Latex => {
+                match self.level {
 
-                1   => format!("\\section{{{}}}", line),
-                2   => format!("\\subsection{{{}}}", line),
-                3   => format!("\\subsubsection{{{}}}", line),
-                4   => format!("\\paragraph{{{}}}", line),
-                5   => format!("\\subparagraph{{{}}}", line),
-                _   => line.to_string(),
+                    1 => format!("\\section{{{}}}", line),
+                    2 => format!("\\subsection{{{}}}", line),
+                    3 => format!("\\subsubsection{{{}}}", line),
+                    4 => format!("\\paragraph{{{}}}", line),
+                    5 => format!("\\subparagraph{{{}}}", line),
+                    _ => line.to_string(),
+                }
             }
         }
     }
@@ -71,7 +68,7 @@ fn test_title_html() {
     assert_eq!("## ", h2.get_pattern());
     assert_eq!("### ", h3.get_pattern());
 
-    assert_eq!("<h1>Hello</h1>", h1.process("Hello",  Format::Html));
+    assert_eq!("<h1>Hello</h1>", h1.process("Hello", Format::Html));
     assert_eq!("<h2>Hi World!</h2>", h2.process("Hi World!", Format::Html));
     assert_eq!("<h3>Hallo</h3>", h3.process("Hallo", Format::Html));
 }
@@ -89,8 +86,9 @@ fn test_title_latex() {
     assert_eq!("## ", h2.get_pattern());
     assert_eq!("### ", h3.get_pattern());
 
-    assert_eq!("\\section{Hello}", h1.process("Hello",  Format::Latex));
-    assert_eq!("\\subsection{Hi World!}", h2.process("Hi World!", Format::Latex));
+    assert_eq!("\\section{Hello}", h1.process("Hello", Format::Latex));
+    assert_eq!("\\subsection{Hi World!}",
+               h2.process("Hi World!", Format::Latex));
     assert_eq!("\\subsubsection{Hallo}", h3.process("Hallo", Format::Latex));
     assert_eq!("\\paragraph{h4}", h4.process("h4", Format::Latex));
     assert_eq!("\\subparagraph{h5}", h5.process("h5", Format::Latex));

@@ -26,7 +26,6 @@ pub struct BuildDir {
 }
 
 impl BuildDir {
-
     /// Create a new BuildDir in ./build
     pub fn new() -> io::Result<BuildDir> {
         BuildDir::with_path("build/")
@@ -35,13 +34,13 @@ impl BuildDir {
     /// Create a new BuildDir at the given path
     pub fn with_path<P: AsRef<Path>>(path: P) -> io::Result<BuildDir> {
         let path = path.as_ref().to_path_buf();
-        let build_dir = BuildDir {path:path.clone()};
+        let build_dir = BuildDir { path: path.clone() };
         match fs::create_dir(&path) {
-            Ok(_)   => Ok(build_dir),
-            Err(e)  => {
+            Ok(_) => Ok(build_dir),
+            Err(e) => {
                 match e.kind() {
-                    ErrorKind::AlreadyExists    => Ok(build_dir),
-                    _                           => Err(e),
+                    ErrorKind::AlreadyExists => Ok(build_dir),
+                    _ => Err(e),
                 }
             }
         }

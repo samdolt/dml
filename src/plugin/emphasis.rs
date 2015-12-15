@@ -1,6 +1,6 @@
-use ::InlineProcessor;
-use ::DmlPlugin;
-use ::Format;
+use InlineProcessor;
+use DmlPlugin;
+use Format;
 use regex::Regex;
 
 pub struct EmphasisPlugin;
@@ -17,15 +17,12 @@ impl DmlPlugin for EmphasisPlugin {
 pub struct EmphasisProcessing;
 
 impl EmphasisProcessing {
-
     pub fn new() -> EmphasisProcessing {
         EmphasisProcessing
     }
-
 }
 
 impl InlineProcessor for EmphasisProcessing {
-
     fn process(&self, block: &str, format: Format) -> String {
 
         let strong_re = Regex::new(r"\*{2}(?P<t>[^\*]+)\*{2}").unwrap();
@@ -33,11 +30,11 @@ impl InlineProcessor for EmphasisProcessing {
 
         let mut result: String;
         match format {
-            Format::Html    =>  {
-                    result = strong_re.replace_all(&block, "<strong>$t</strong>");
-                    result = weak_re.replace_all(&result, "<em>$t</em>");
-                },
-            Format::Latex   => unimplemented!()
+            Format::Html => {
+                result = strong_re.replace_all(&block, "<strong>$t</strong>");
+                result = weak_re.replace_all(&result, "<em>$t</em>");
+            }
+            Format::Latex => unimplemented!(),
         }
         result.to_string()
     }
@@ -49,9 +46,9 @@ fn test_emphasis_html() {
     let em = EmphasisProcessing::new();
 
     assert_eq!("<em>Hello</em>", em.process("*Hello*", Format::Html));
-    assert_eq!("<strong>Hallo</strong>", em.process("**Hallo**", Format::Html));
+    assert_eq!("<strong>Hallo</strong>",
+               em.process("**Hallo**", Format::Html));
 
     assert_eq!("<em>Hello <strong>World</strong> !</em>",
-               em.process("*Hello **World** !*", Format::Html)
-    );
+               em.process("*Hello **World** !*", Format::Html));
 }

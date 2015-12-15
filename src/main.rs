@@ -18,19 +18,25 @@ dml - Dolt Markup Language
 
 Usage:
   dml <command> [<args>...]
-  dml -h | -v
+  \
+                             dml -h | -v
 
 Options:
   -h --help                 Show this screen.
-  -v --version              Show version
+  \
+                             -v --version              Show version
 
-Some common dml commands are:
+Some common dml commands \
+                             are:
   build     Compile the current project
-  clean     Remove the target directory
+  clean     Remove the \
+                             target directory
   new       Create a new dml project
-  process   Process a single file
+  process   \
+                             Process a single file
 
-See 'dml help <command>' for more information on a specific command.
+See 'dml help <command>' for more information \
+                             on a specific command.
 ";
 
 

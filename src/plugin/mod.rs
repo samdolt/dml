@@ -1,4 +1,4 @@
-use ::Format;
+use Format;
 use regex::Regex;
 
 mod title;
@@ -36,4 +36,3 @@ pub trait NamedBlockProcessor {
 pub trait InlineProcessor {
     fn process(&self, block: &str, to: Format) -> String;
 }
-
