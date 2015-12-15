@@ -8,11 +8,10 @@
 //! If you want to handle i/o and user interface, use functions of the
 //! `dml::helpers` module.
 
+use subcmd::Command;
+
 mod process;
 use self::process::ProcessCommand;
-
-mod help;
-use self::help::HelpCommand;
 
 mod clean;
 use self::clean::CleanCommand;
@@ -23,37 +22,13 @@ use self::new::NewCommand;
 mod build;
 use self::build::BuildCommand;
 
-/// Available command on the command line
-#[derive(Debug, RustcDecodable)]
-pub enum Command {
-    Build, New, Clean, Process, Help,
-}
+pub fn get_all_commands() -> Vec<Box<Command>> {
+    let mut cmds: Vec<Box<Command>> = Vec::new();
 
-impl Command {
+    cmds.push(Box::new(ProcessCommand));
+    cmds.push(Box::new(CleanCommand));
+    cmds.push(Box::new(NewCommand));
+    cmds.push(Box::new(BuildCommand));
 
-    /// Run the specified command with given argv
-    pub fn run(self, args: &Vec<String>) {
-        match self {
-            Command::Build      =>  BuildCommand::run(&args),
-            Command::New        =>  NewCommand::run(&args),
-            Command::Clean      =>  CleanCommand::run(&args),
-            Command::Process    =>  ProcessCommand::run(&args),
-            Command::Help       =>  HelpCommand::run(&args),
-        }
-    }
-
-    pub fn help(self) -> String {
-        match self {
-            Command::Build      => BuildCommand::help(),
-            Command::Process    => ProcessCommand::help(),
-            Command::Help       => HelpCommand::help(),
-            Command::Clean      => CleanCommand::help(),
-            Command::New        => NewCommand::help(),
-        }
-    }
-}
-
-trait DmlCommand {
-    fn run(argv: &Vec<String>);
-    fn help() -> String;
+    cmds
 }

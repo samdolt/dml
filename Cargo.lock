@@ -7,6 +7,7 @@ dependencies = [
  "log 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "subcmd 0.0.1 (git+https://github.com/samdolt/subcmd-rs.git)",
 ]
 
 [[package]]
@@ -35,6 +36,11 @@ dependencies = [
  "log 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "getopts"
+version = "0.2.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "libc"
@@ -81,4 +87,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "strsim"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "subcmd"
+version = "0.0.1"
+source = "git+https://github.com/samdolt/subcmd-rs.git#a5049553dec2acf52085d5c417be4fee3a5b5670"
+dependencies = [
+ "getopts 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 

@@ -1,5 +1,6 @@
 use docopt::Docopt;
-use command::DmlCommand;
+
+use subcmd::Command;
 
 pub struct ProcessCommand;
 
@@ -39,12 +40,9 @@ struct Args {
     flag_partial: bool,
 }
 
-impl DmlCommand for ProcessCommand {
-    fn help() -> String {
-        USAGE.to_string()
-    }
+impl Command for ProcessCommand {
 
-    fn run(argv: &Vec<String>){
+    fn run(&self, argv: &Vec<String>){
 
         let args: Args = Docopt::new(USAGE)
                                 .and_then(|d| d.argv(argv.into_iter()).decode())
@@ -74,4 +72,8 @@ impl DmlCommand for ProcessCommand {
             Err(e)  => panic!("{}", e),
         }
     }
+
+    fn name<'a>(&self) -> &'a str { "process" }
+    fn help<'a>(&self) -> &'a str { USAGE }
+    fn description<'a>(&self) -> &'a str { "Process a single file"}
 }

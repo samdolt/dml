@@ -9,6 +9,7 @@ docopt = "0.6"
 rustc-serialize = "0.3"
 log = "0.3"
 env_logger = "0.3"
+subcmd = { git = "https://github.com/samdolt/subcmd-rs.git" }
 
 [lib]
 name = "dml"

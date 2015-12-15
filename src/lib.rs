@@ -10,6 +10,8 @@ extern crate regex;
 
 extern crate docopt;
 
+extern crate subcmd;
+
 
 use std::io::BufReader;
 use std::io::BufWriter;
@@ -33,7 +35,6 @@ pub use config::Format;
 mod project;
 
 pub mod command;
-pub use command::Command;
 
 pub mod helpers;
 pub mod parser;

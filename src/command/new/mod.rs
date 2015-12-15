@@ -1,5 +1,5 @@
 use docopt::Docopt;
-use command::DmlCommand;
+use subcmd::Command;
 
 pub struct NewCommand;
 
@@ -22,12 +22,8 @@ struct Args{
     arg_path: String
 }
 
-impl DmlCommand for NewCommand {
-    fn help() -> String {
-        USAGE.to_string()
-    }
-
-    fn run(argv: &Vec<String>){
+impl Command for NewCommand {
+    fn run(&self, argv: &Vec<String>){
 
         let args: Args = Docopt::new(USAGE)
                           .and_then(|d| d.argv(argv.into_iter()).decode())
@@ -44,4 +40,8 @@ impl DmlCommand for NewCommand {
         let mut sum = File::create(sum_path).expect("Couldn't create summary.toml");
         sum.write_all(SUMMARY.as_bytes()).expect("Couln't write summary.toml");
     }
+
+    fn name<'a>(&self) -> &'a str { "new" }
+    fn help<'a>(&self) -> &'a str { USAGE }
+    fn description<'a>(&self) -> &'a str { "Create a new dml project" }
 }
