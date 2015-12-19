@@ -35,11 +35,20 @@ impl AnonymousBlockProcessor for TitleProcessing {
             pattern.push('#');
         }
 
-        pattern.push(' ');
         pattern
     }
 
     fn process(&self, line: &str, format: Format) -> String {
+
+        let mut line = line.to_string();
+
+        // Remove k number of # 
+        for _ in 0..self.level {
+            line.remove(0);
+        };
+
+        let line = line.trim();
+
         match format {
             Format::Html => format!("<h{}>{}</h{}>", self.level, line, self.level),
             Format::Latex => {

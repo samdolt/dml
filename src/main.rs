@@ -3,41 +3,15 @@ extern crate rustc_serialize;
 extern crate docopt;
 extern crate subcmd;
 
-use subcmd::Handler;
+use subcmd::CmdHandler;
+use subcmd::CmdResult;
 use dml::command::get_all_commands;
 
 #[macro_use]
 extern crate log;
 extern crate env_logger;
 
-use docopt::Docopt;
 use std::env;
-
-const USAGE: &'static str = "
-dml - Dolt Markup Language
-
-Usage:
-  dml <command> [<args>...]
-  \
-                             dml -h | -v
-
-Options:
-  -h --help                 Show this screen.
-  \
-                             -v --version              Show version
-
-Some common dml commands \
-                             are:
-  build     Compile the current project
-  clean     Remove the \
-                             target directory
-  new       Create a new dml project
-  process   \
-                             Process a single file
-
-See 'dml help <command>' for more information \
-                             on a specific command.
-";
 
 
 fn main() {
@@ -45,13 +19,20 @@ fn main() {
 
     let cmds = get_all_commands();
 
-    let mut handler = Handler::new();
+    let mut handler = CmdHandler::new();
+    handler.set_description("Dolt Markup Language");
 
     for cmd in cmds {
         handler.add(cmd);
     }
 
-    handler.run();
+    match handler.run() {
+        CmdResult::Help(msg)           => msg.print(),
+        CmdResult::HelpForCmd(cmd)     => cmd.print_help(),
+        CmdResult::BadUsage(msg)       => msg.print(),
+        CmdResult::UnknowCmd(msg)      => msg.print(),
+        CmdResult::Cmd(cmd)            => cmd.run(),
+    }
 }
 
 fn print_info() {

@@ -58,6 +58,34 @@ impl Block {
             args: Vec::new(),
         }
     }
+
+    fn parse(&self) -> String {
+        match self.type_ {
+            BlockType::Anonymous => self.parse_anonymous(),
+            BlockType::Named     => self.parse_named(),
+            BlockType::Empty     => unreachable!(),
+        }
+    }
+
+    fn parse_anonymous(&self) -> String {
+
+        trace!("PROCESS_BLOCK: ---{}---", &self.content);
+
+        let anonymous_processors = TitlePlugin::get_anonymous_block_processors();
+
+        for plug in anonymous_processors.iter() {
+            if self.name == plug.get_pattern() {
+                return plug.process(&self.content, Format::Html);
+            };
+        };
+
+        // If no plug found, it's a paragraph
+        format!("<p>\n{}</p>\n\n", self.content)
+    }
+
+    fn parse_named(&self) -> String {
+        String::new()
+    }
 }
 
 impl<R> BlockIterator<R> where R: Read
@@ -78,10 +106,12 @@ impl<R> Iterator for BlockIterator<R> where R: Read
         let mut block = Block::new();
         let mut line = String::with_capacity(80);
         loop {
-            let line = match self.lines.next() {
+            let mut line = match self.lines.next() {
                 Some(R) => R.expect("IO ERROR"),
                 None => break,
             };
+
+            line.push('\n'); // Add missing new line
 
             trace!("Get new line {:?}", &line);
 
@@ -162,8 +192,7 @@ pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result
     let block_parser = BlockIterator::new(input);
 
     for block in block_parser {
-        println!("======================");
-        println!("{:?}", block);
+        print!("{}",block.parse());
     }
 
     // Write footer if needed

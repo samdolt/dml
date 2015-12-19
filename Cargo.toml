@@ -10,6 +10,7 @@ rustc-serialize = "0.3"
 log = "0.3"
 env_logger = "0.3"
 subcmd = { git = "https://github.com/samdolt/subcmd-rs.git" }
+handlebars = "0.12"
 
 [lib]
 name = "dml"
