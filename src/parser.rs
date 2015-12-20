@@ -62,8 +62,8 @@ impl Block {
     fn parse(&self) -> String {
         match self.type_ {
             BlockType::Anonymous => self.parse_anonymous(),
-            BlockType::Named     => self.parse_named(),
-            BlockType::Empty     => unreachable!(),
+            BlockType::Named => self.parse_named(),
+            BlockType::Empty => unreachable!(),
         }
     }
 
@@ -77,7 +77,7 @@ impl Block {
             if self.name == plug.get_pattern() {
                 return plug.process(&self.content, Format::Html);
             };
-        };
+        }
 
         // If no plug found, it's a paragraph
         format!("<p>\n{}</p>\n\n", self.content)
@@ -192,7 +192,7 @@ pub fn process<R: Read, W: Write>(input: R, output: W, config: Config) -> Result
     let block_parser = BlockIterator::new(input);
 
     for block in block_parser {
-        print!("{}",block.parse());
+        write!(out_buff, "{}\n", block.parse());
     }
 
     // Write footer if needed

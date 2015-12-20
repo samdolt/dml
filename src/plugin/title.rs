@@ -42,10 +42,10 @@ impl AnonymousBlockProcessor for TitleProcessing {
 
         let mut line = line.to_string();
 
-        // Remove k number of # 
+        // Remove k number of #
         for _ in 0..self.level {
             line.remove(0);
-        };
+        }
 
         let line = line.trim();
 
